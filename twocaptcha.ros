@@ -1,0 +1,10 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+(defpackage :ros.script.twocaptcha.3666708864
+  (:use :cl))
+(in-package :ros.script.twocaptcha.3666708864)
+(defun main (&rest argv)
+  (declare (ignorable argv)))
