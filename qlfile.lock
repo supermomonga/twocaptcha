@@ -1,0 +1,16 @@
+("quicklisp" .
+ (:class qlot.source.ql:source-ql-all
+  :initargs (:project-name "quicklisp" :%version :latest)
+  :version "2016-02-08"))
+("unix-opts" .
+ (:class qlot.source.ql:source-ql
+  :initargs (:project-name "unix-opts" :%version "2015-12-18")
+  :version "ql-2015-12-18"))
+("dexador" .
+ (:class qlot.source.ql:source-ql
+  :initargs (:project-name "dexador" :%version "2016-02-08")
+  :version "ql-2016-02-08"))
+("split-sequence" .
+ (:class qlot.source.ql:source-ql
+  :initargs (:project-name "split-sequence" :%version "2015-08-04")
+  :version "ql-2015-08-04"))
