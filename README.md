@@ -12,9 +12,16 @@ The unmoral webservice's api client library and command line interface
 - [ ] Get account statistics
 - [ ] Get how many decoders are waiting for CAPTCHA
 
-## Usage
+## Library usage
 
 `(TBD)`
+
+## CLI usage
+
+```
+qlot install
+qlot exec ./twocaptcha.ros --help
+```
 
 ## Installation
 
