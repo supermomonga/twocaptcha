@@ -20,6 +20,13 @@ The unmoral webservice's api client library and command line interface
 
 `(TBD)`
 
+## Test
+
+```
+qlot install
+qlot exec run-prove ./twocaptcha-test.asd
+```
+
 ## Author
 
 supermomonga

@@ -18,7 +18,8 @@
   :license "MIT"
   :depends-on (:unix-opts
                :dexador
-               :split-sequence)
+               :split-sequence
+               :cl-annot)
   :components ((:module "src"
                 :components
                 ((:file "twocaptcha"))))

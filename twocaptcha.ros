@@ -6,5 +6,45 @@ exec ros -Q -- $0 "$@"
 (defpackage :ros.script.twocaptcha.3666708864
   (:use :cl))
 (in-package :ros.script.twocaptcha.3666708864)
+
+(ql:quickload :qlot :silent t)
+(qlot:quickload :twocaptcha :silent t)
+
+(defun unknown-option (condition)
+  (format t "warning: ~s option is unknown!~%" (opts:option condition))
+  (invoke-restart 'opts:skip-option))
+
+(defmacro when-option ((options opt) &body body)
+  `(let ((it (getf ,options ,opt)))
+     (when it
+       ,@body)))
+
 (defun main (&rest argv)
-  (declare (ignorable argv)))
+  (declare (ignorable argv))
+  (opts:define-opts
+    (:name :help
+           :description "print this help text"
+           :short #\h
+           :long "help")
+    (:name :apikey
+           :description "2captcha apikey"
+           :short #\k
+           :long "apikey"
+           :arg-parser #'identity))
+  (multiple-value-bind (options free-args)
+      (handler-case
+          (handler-bind ((opts:unknown-option #'unknown-option))
+            (opts:get-opts argv))
+        (opts:missing-arg (condition)
+          (format t "fatal: option ~s needs an argument!~%"
+                  (opts:option condition)))
+        (opts:arg-parser-failed (condition)
+          (format t "fatal: cannot parse ~s as argument of ~s~%"
+                  (opts:raw-arg condition)
+                  (opts:option condition))))
+    (declare (ignorable free-args))
+    (when-option (options :help)
+                 (opts:describe
+                  :prefix "twocaptcha - 2captcha.com command line based client interface"
+                  :usage-of "twocaptcha"
+                  :args "[FILEPATH OR BASE64_ENCODED_BINARY]"))))
