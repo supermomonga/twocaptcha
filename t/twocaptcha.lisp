@@ -4,8 +4,10 @@
         :twocaptcha
         :prove))
 
+;; TODO: Avoid re-definition warning
 ;; (declaim #+sbcl (sb-ext:muffle-conditions sb-kernel:redefinition-warning))
 
+;; Mocking
 (in-package :dex)
 (defun get (&rest args)
   (declare (ignorable args))
@@ -17,7 +19,7 @@
 (in-package :twocaptcha-test)
 
 
-
+;; Tests
 (plan 2)
 
 (is (twocaptcha:queue "benri" "apikey") "12345")
