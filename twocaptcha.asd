@@ -19,7 +19,8 @@
   :depends-on (:unix-opts
                :dexador
                :split-sequence
-               :cl-annot)
+               :cl-annot
+               :uiop)
   :components ((:module "src"
                 :components
                 ((:file "twocaptcha"))))
