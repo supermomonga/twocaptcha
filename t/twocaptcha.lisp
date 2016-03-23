@@ -20,11 +20,23 @@
 
 
 ;; Tests
-(plan 2)
+(plan 8)
 
-(is (twocaptcha:queue "benri" "apikey") "12345")
-(is (twocaptcha:result "12345" "apikey") "solved")
+(multiple-value-bind (status id)
+    (twocaptcha:queue "benri" "apikey")
+  (is status 'TWOCAPTCHA::OK)
+  (is id "12345"))
 
+(multiple-value-bind (status text)
+    (twocaptcha:result "benri" "apikey")
+  (is status 'TWOCAPTCHA::OK)
+  (is text "solved"))
+
+
+(is (twocaptcha:-parse-query-string "a=1 b=2 c=3") '(("a" . "1") ("b" . "2") ("c" . "3")))
+(is (twocaptcha:-parse-query-string "a=1 b c=3") '(("a" . "1") ("c" . "3")))
+(is (twocaptcha:-parse-query-string "a=1  b=2") '(("a" . "1") ("b" . "2")))
+(is (twocaptcha:-parse-query-string "a=1   b=2") '(("a" . "1") ("b" . "2")))
 
 
 (finalize)

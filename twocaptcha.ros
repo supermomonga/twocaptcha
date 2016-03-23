@@ -4,20 +4,66 @@
 exec ros -Q -- $0 "$@"
 |#
 (defpackage :ros.script.twocaptcha.3666708864
-  (:use :cl))
+  (:use
+   :cl))
 (in-package :ros.script.twocaptcha.3666708864)
 
 (ql:quickload :qlot :silent t)
 (qlot:quickload :twocaptcha :silent t)
 
+(defun show-help ()
+  (opts:describe
+   :prefix "twocaptcha - 2captcha.com command line based client interface"
+   :usage-of "twocaptcha"
+   :args "[FILEPATH OR BASE64_ENCODED_BINARY]"))
+
 (defun unknown-option (condition)
   (format t "warning: ~s option is unknown!~%" (opts:option condition))
   (invoke-restart 'opts:skip-option))
+
+(defmacro option-value ((options opt))
+  `(getf ,options ,opt))
 
 (defmacro when-option ((options opt) &body body)
   `(let ((it (getf ,options ,opt)))
      (when it
        ,@body)))
+
+(defmacro unless-option ((options opt) &body body)
+  `(let ((it (getf ,options ,opt)))
+     (unless it
+       ,@body)))
+
+(defun parse-queries (query-string)
+  (mapcar (lambda (pair) (apply #'cons (split-sequence:split-sequence #\= pair)))
+          (split-sequence:split-sequence #\  query-string)))
+
+(defun run-with-file (apikey file queries options)
+  (declare (ignorable apikey file queries options))
+  (format t "TBD"))
+
+(defun run-with-base64 (apikey base64 queries options)
+  (declare (ignorable apikey queries options))
+  (if base64
+      (progn
+        (multiple-value-bind (queue-status captcha-id)
+            (twocaptcha:queue base64 apikey queries)
+          (if (eq 'TWOCAPTCHA::OK queue-status)
+              (multiple-value-bind (result-status result-text)
+                  (twocaptcha:result captcha-id apikey)
+                (if (eq 'TWOCAPTCHA::OK result-status)
+                    (progn
+                      (format t "~A:~A~%" result-text captcha-id)
+                      (ros:quit 0))
+                    (progn
+                      (format t "fatal: captcha result status: ~S~%" queue-status)
+                      (ros:quit 1))))
+              (progn
+                (format t "fatal: captcha queue result: ~S~%" queue-status)
+                (ros:quit 1)))))
+      (progn
+        (format t "fatal: you need to pass base64 encoded image file!~%")
+        (ros:quit 1))))
 
 (defun main (&rest argv)
   (declare (ignorable argv))
@@ -30,21 +76,44 @@ exec ros -Q -- $0 "$@"
            :description "2captcha apikey"
            :short #\k
            :long "apikey"
-           :arg-parser #'identity))
+           :arg-parser #'identity)
+    (:name :type
+           :description "file or base64 (default: base64)"
+           :short #\t
+           :long "type"
+           :arg-parser #'identity)
+    (:name :queries
+           :description "option queries in format 'a=1 b=2 ...'"
+           :short #\q
+           :long "queries"
+           :arg-parser #'twocaptcha:-parse-query-string))
   (multiple-value-bind (options free-args)
       (handler-case
           (handler-bind ((opts:unknown-option #'unknown-option))
             (opts:get-opts argv))
         (opts:missing-arg (condition)
           (format t "fatal: option ~s needs an argument!~%"
-                  (opts:option condition)))
+                  (opts:option condition))
+          (ros:quit 1))
         (opts:arg-parser-failed (condition)
           (format t "fatal: cannot parse ~s as argument of ~s~%"
                   (opts:raw-arg condition)
-                  (opts:option condition))))
+                  (opts:option condition))
+          (ros:quit 1)))
     (declare (ignorable free-args))
+    ;; help
     (when-option (options :help)
-                 (opts:describe
-                  :prefix "twocaptcha - 2captcha.com command line based client interface"
-                  :usage-of "twocaptcha"
-                  :args "[FILEPATH OR BASE64_ENCODED_BINARY]"))))
+                 (show-help)
+                 (ros:quit 0))
+    ;; need apikey
+    (unless-option (options :apikey)
+                   (format t "fatal: you need to specify apikey!~%")
+                   (ros:quit 1))
+    (let ((apikey (option-value (options :apikey)))
+          (type (or (option-value (options :type)) "base64"))
+          (file-or-base64 (first free-args))
+          (queries (or (option-value (options :queries)) '())))
+      (if (eq type "file")
+          (run-with-file apikey file-or-base64 queries options)
+          (run-with-base64 apikey file-or-base64 queries options)))))
+

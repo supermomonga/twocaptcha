@@ -23,9 +23,15 @@ qlot install
 qlot exec ./twocaptcha.ros --help
 ```
 
+```
+qlot exec ./twocaptcha.ros --apikey=your_api_key --queries="numeric=1 min_len=4 max_len=4 phrase=0" base64_encoded_image
+```
+
 ## Installation
 
-`(TBD)`
+```
+ros build ./twocaptcha.ros
+```
 
 ## Test
 
