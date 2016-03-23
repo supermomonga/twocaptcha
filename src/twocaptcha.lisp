@@ -29,7 +29,7 @@
   (let* ((uri (quri:make-uri :defaults "http://2captcha.com/res.php"
                              :query (list (cons "key" apikey)
                                           (cons "id" captcha-id)
-                                          '("action" . "get"))))
+                                          (cons "action" "get"))))
          (res (multiple-value-list
                (handler-bind ((dex:http-request-service-unavailable (dex:retry-request 5 :interval 3)))
                  (dex:get uri))))
