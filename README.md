@@ -30,7 +30,7 @@ qlot exec ./roswell/twocaptcha.ros --apikey=your_api_key --queries="numeric=1 mi
 ## Installation
 
 ```
-ros build ./roswell/twocaptcha.ros
+qlot exec ros build ./roswell/twocaptcha.ros
 ```
 
 ## Test
